@@ -16,7 +16,11 @@ body {
 }
 
 /* MAIN LAYOUT */
-.container {
+/*.container {*/
+/*  max-width: 1500px;*/
+/*  margin: 0 auto;*/
+/*}*/
+#root {
   max-width: 1500px;
   margin: 0 auto;
 }
