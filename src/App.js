@@ -37,16 +37,17 @@ const initialFacts = [
 
 function App() {
    const [showForm, setShowForm] = useState(false);
+   const [facts, setFacts] = useState(initialFacts);
 
    return (
        <>
           {/* Header */}
           <Header showForm={showForm} setShowForm={setShowForm}/>
-          {showForm ? <NewFactForm/> : null}
+          {showForm ? <NewFactForm setFacts={setFacts} setShowForm={setShowForm}/>  : null  }
           {/*<NewFactForm/>*/}
           <main className={"main"}>
              <CategoryFilter/>
-             <FactList/>
+             <FactList facts={facts}/>
           </main>
 
        </>
@@ -87,16 +88,55 @@ const CATEGORIES = [
 ];
 
 
-function NewFactForm() {
+function isValidHttpUrl(str) {
+   let url;
+
+   try {
+      url = new URL(str);
+   } catch (_) {
+      return false;
+   }
+
+   return url.protocol === "http:" || url.protocol === "https:";
+}
+
+function NewFactForm({setFacts, setShowForm}) {
    const [text, setText] = useState("");
-   const [source, setSource] = useState("");
+   const [source, setSource] = useState("https://exemple.com");
    const [category, setCategory] = useState("");
    const textLength = text.length;
 
    function handleSubmit(e) {
+      // 1- Prevent the page from reloading
       e.preventDefault();
       console.log(text, source, category);
+      // 2- Check if data is valid, if so create a new fact
+      if (text && isValidHttpUrl(source) && category && textLength <= 200) {
+         console.log("Valid data created");
+         // 3- Create a new fact object
+         const newFact = {
+            id: Math.round(Math.random() * 1000000000000),
+            // text: text,
+            text,
+            source,
+            category,
+            votesInteresting: 0,
+            votesMindblowing: 0,
+            votesFalse: 0,
+            createdIn: new Date().getFullYear(),
+         };
+         // 4- Add the new fact to the list of facts
+         setFacts((facts) => [newFact, ...facts]);
+         // 5- Reset the form
+         setText("");
+         setSource("");
+         setCategory("");
+         // 6- Close the form
+            setShowForm(false);
+
+      }
    }
+
 
    return (
        <form className={"fact-form"} onSubmit={handleSubmit}>
@@ -147,9 +187,12 @@ function CategoryFilter() {
    );
 }
 
-function FactList() {
+function FactList({facts}) {
    // Temporary data
-   const facts = initialFacts;
+   // const facts = initialFacts;
+   // const [facts, setFacts] = useState(initialFacts); carry it to the App component (parent)
+
+
    return (
        <section>
           <ul className={"facts-list"}>
