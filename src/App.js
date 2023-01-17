@@ -1,6 +1,5 @@
 import './style.css'
-
-
+import {useState} from "react";
 
 const initialFacts = [
    {
@@ -37,6 +36,7 @@ const initialFacts = [
 ];
 
 function App() {
+   const [showForm, setShowForm] = useState(false);
    const appTitle = "What to code today?";
 
    return (
@@ -53,10 +53,12 @@ function App() {
                 <h1>{appTitle}</h1>
              </div>
 
-             <button className="btn btn-large btn-open">Share a fact</button>
+             <button className="btn btn-large btn-open"
+                     onClick={() => setShowForm((show) => !show)}>Share a fact
+             </button>
           </header>
-
-          <NewFactForm/>
+          {showForm ? <NewFactForm/> : null}
+          {/*<NewFactForm/>*/}
           <main className={"main"}>
              <CategoryFilter/>
              <FactList/>
@@ -84,6 +86,7 @@ const CATEGORIES = [
    {name: "history", color: "#f97316"},
    {name: "news", color: "#8b5cf6"},
 ];
+
 function CategoryFilter() {
    return (
        <aside>
@@ -92,14 +95,14 @@ function CategoryFilter() {
                 <button className="btn btn-all-categories">All</button>
              </li>
 
-                {CATEGORIES.map((cat) =>  <li className="category" key={cat.name}>
-                   <button
-                       className="btn btn-category"
-                       style={{backgroundColor: cat.color}}
-                   >
-                      {cat.name}
-                   </button>
-                </li>)}
+             {CATEGORIES.map((cat) => <li className="category" key={cat.name}>
+                <button
+                    className="btn btn-category"
+                    style={{backgroundColor: cat.color}}
+                >
+                   {cat.name}
+                </button>
+             </li>)}
 
           </ul>
        </aside>
