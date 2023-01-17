@@ -53,7 +53,7 @@ function App() {
    );
 }
 
-function Header({showForm,setShowForm}) {
+function Header({showForm, setShowForm}) {
    const appTitle = "What to code today?";
    return (
        <header className="header">
@@ -75,14 +75,6 @@ function Header({showForm,setShowForm}) {
    )
 }
 
-function NewFactForm() {
-   return (
-       <form className={"fact-form"}>
-          New Fact Form
-       </form>
-   );
-}
-
 const CATEGORIES = [
    {name: "technology", color: "#3b82f6"},
    {name: "science", color: "#16a34a"},
@@ -93,6 +85,45 @@ const CATEGORIES = [
    {name: "history", color: "#f97316"},
    {name: "news", color: "#8b5cf6"},
 ];
+
+
+function NewFactForm() {
+   const [text, setText] = useState("");
+   const [source, setSource] = useState("");
+   const [category, setCategory] = useState("");
+   const textLength = text.length;
+
+   function handleSubmit(e) {
+      e.preventDefault();
+      console.log(text, source, category);
+   }
+
+   return (
+       <form className={"fact-form"} onSubmit={handleSubmit}>
+          <input value={text}
+                 onChange={(e) => setText(e.target.value)}
+                 type="text"
+                 placeholder="Share a fact with the world..."/>
+          <span>{200 - textLength}</span>
+          <input value={source}
+                 onChange={(e) => setSource(e.target.value)}
+                 type="text"
+                 placeholder="Trustworthy source..."/>
+          <select value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+          >
+             <option value="">Choose category:</option>
+             {CATEGORIES.map((cat) => <option value={cat.name} key={cat.name}>{cat.name.toUpperCase()}</option>)}
+
+             {/*<option value="technology">Technology</option>*/}
+             {/*<option value="science">Science</option>*/}
+             {/*<option value="finance">Finance</option>*/}
+          </select>
+          <button className="btn btn-large">Post</button>
+       </form>
+   );
+}
+
 
 function CategoryFilter() {
    return (
