@@ -14,7 +14,7 @@ body {
 .hidden {
   display: none !important;
 }
-.loading {
+.message {
   text-align: center;
   text-transform: uppercase;
   font-size: 32px;

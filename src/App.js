@@ -39,32 +39,50 @@ const initialFacts = [
 function App() {
    const [showForm, setShowForm] = useState(false);
    const [facts, setFacts] = useState([]);
-    const [loading, setLoading] = useState(false);
+   const [loading, setLoading] = useState(false);
+   const [currentCategory, setCurrentCategory] = useState("all");
 
    useEffect(() => {
       // before we fetch the data, we set the loading state to true
-        setLoading(true);
+      setLoading(true);
+        // fetch the data
       async function fetchFacts() {
-         const { data: facts, error } = await supabase
-             .from('facts')
-             .select('*')
-             .order('id', { ascending: false });
-            // console.log(facts)
+         let query = supabase.from("facts").select("*");
+            if (currentCategory !== "all") {
+                query = query.eq("category", currentCategory);
+            }
+
+         const {data: facts, error} = await query
+             // .from('facts')
+             // .select('*')
+             // shows only history facts
+             // .eq("category", "history")
+             .order('votesInteresting', {ascending: false})
+             .limit(100)
+         // console.log(facts)
+         console.log(error)
+         if (!error) {
+            setFacts(facts)
+         } else {
+            alert(error.message)
+         }
+
          setFacts(facts)
          setLoading(false);
       }
-        fetchFacts()
-   }, []);
+
+      fetchFacts()
+   }, [ currentCategory ]);
 
    return (
        <>
           {/* Header */}
           <Header showForm={showForm} setShowForm={setShowForm}/>
-          {showForm ? <NewFactForm setFacts={setFacts} setShowForm={setShowForm}/>  : null  }
+          {showForm ? <NewFactForm setFacts={setFacts} setShowForm={setShowForm}/> : null}
           {/*<NewFactForm/>*/}
           <main className={"main"}>
-             <CategoryFilter/>
-             {loading ? <Loading/> : <FactList facts={facts}/> }
+             <CategoryFilter setCurrentCategory={setCurrentCategory}/>
+             {loading ? <Loading/> : <FactList facts={facts}/>}
              {/*<FactList facts={facts}/>*/}
           </main>
 
@@ -74,11 +92,12 @@ function App() {
 
 function Loading() {
    return (
-       <p className="loading">
+       <p className="message">
           Loading...
        </p>
    );
 }
+
 function Header({showForm, setShowForm}) {
    const appTitle = "What to code today?";
    return (
@@ -157,7 +176,7 @@ function NewFactForm({setFacts, setShowForm}) {
          setSource("");
          setCategory("");
          // 6- Close the form
-            setShowForm(false);
+         setShowForm(false);
 
       }
    }
@@ -190,18 +209,21 @@ function NewFactForm({setFacts, setShowForm}) {
 }
 
 
-function CategoryFilter() {
+function CategoryFilter({setCurrentCategory}) {
    return (
        <aside>
           <ul>
              <li className="category">
-                <button className="btn btn-all-categories">All</button>
+                <button className="btn btn-all-categories"
+                        onClick={() => setCurrentCategory("all")}>All
+                </button>
              </li>
 
              {CATEGORIES.map((cat) => <li className="category" key={cat.name}>
                 <button
                     className="btn btn-category"
                     style={{backgroundColor: cat.color}}
+                    onClick={() => setCurrentCategory(cat.name)}
                 >
                    {cat.name}
                 </button>
@@ -217,6 +239,11 @@ function FactList({facts}) {
    // const facts = initialFacts;
    // const [facts, setFacts] = useState(initialFacts); carry it to the App component (parent)
 
+   if (facts.length === 0) {
+        return (
+            <p className="message">No facts to show... Create the first one.</p>
+        );
+   }
 
    return (
        <section>
