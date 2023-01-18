@@ -38,14 +38,15 @@ const initialFacts = [
 
 function App() {
    const [showForm, setShowForm] = useState(false);
-   const [facts, setFacts] = useState(initialFacts);
+   const [facts, setFacts] = useState([]);
 
    useEffect(() => {
       async function fetchFacts() {
          const { data: facts, error } = await supabase
              .from('facts')
              .select('*')
-            console.log(facts)
+            // console.log(facts)
+         setFacts(facts)
       }
         fetchFacts()
    }, []);
