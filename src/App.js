@@ -66,6 +66,13 @@ function App() {
    );
 }
 
+function Loading() {
+   return (
+       <p className="loading">
+          Loading...
+       </p>
+   );
+}
 function Header({showForm, setShowForm}) {
    const appTitle = "What to code today?";
    return (
