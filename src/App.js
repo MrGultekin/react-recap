@@ -48,6 +48,7 @@ function App() {
          const { data: facts, error } = await supabase
              .from('facts')
              .select('*')
+             .order('id', { ascending: false });
             // console.log(facts)
          setFacts(facts)
          setLoading(false);
