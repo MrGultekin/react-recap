@@ -45,12 +45,13 @@ function App() {
    useEffect(() => {
       // before we fetch the data, we set the loading state to true
       setLoading(true);
-        // fetch the data
+
+      // fetch the data
       async function fetchFacts() {
          let query = supabase.from("facts").select("*");
-            if (currentCategory !== "all") {
-                query = query.eq("category", currentCategory);
-            }
+         if (currentCategory !== "all") {
+            query = query.eq("category", currentCategory);
+         }
 
          const {data: facts, error} = await query
              // .from('facts')
@@ -72,7 +73,7 @@ function App() {
       }
 
       fetchFacts()
-   }, [ currentCategory ]);
+   }, [currentCategory]);
 
    return (
        <>
@@ -148,6 +149,7 @@ function NewFactForm({setFacts, setShowForm}) {
    const [text, setText] = useState("");
    const [source, setSource] = useState("https://exemple.com");
    const [category, setCategory] = useState("");
+   const [isUploading, setIsUploading] = useState(false);
    const textLength = text.length;
 
    async function handleSubmit(e) {
@@ -171,9 +173,9 @@ function NewFactForm({setFacts, setShowForm}) {
          // };
 
          // 3- Upload the new fact to the database and receive the new fact object
-
-         const {data: newFact, error } = await supabase.from("facts").insert([{text, source, category}]).select()
-
+         setIsUploading(true);
+         const {data: newFact, error} = await supabase.from("facts").insert([{text, source, category}]).select()
+         setIsUploading(false);
          // 4- Add the new fact to the list of facts
          // With [0] fact is added both database and also local state
          setFacts((facts) => [newFact[0], ...facts]);
@@ -190,17 +192,23 @@ function NewFactForm({setFacts, setShowForm}) {
 
    return (
        <form className={"fact-form"} onSubmit={handleSubmit}>
-          <input value={text}
-                 onChange={(e) => setText(e.target.value)}
-                 type="text"
-                 placeholder="Share a fact with the world..."/>
+          <input
+              disabled={isUploading}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              type="text"
+              placeholder="Share a fact with the world..."/>
           <span>{200 - textLength}</span>
-          <input value={source}
-                 onChange={(e) => setSource(e.target.value)}
-                 type="text"
-                 placeholder="Trustworthy source..."/>
-          <select value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+          <input
+              disabled={isUploading}
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              type="text"
+              placeholder="Trustworthy source..."/>
+          <select
+              disabled={isUploading}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
           >
              <option value="">Choose category:</option>
              {CATEGORIES.map((cat) => <option value={cat.name} key={cat.name}>{cat.name.toUpperCase()}</option>)}
@@ -209,7 +217,7 @@ function NewFactForm({setFacts, setShowForm}) {
              {/*<option value="science">Science</option>*/}
              {/*<option value="finance">Finance</option>*/}
           </select>
-          <button className="btn btn-large">Post</button>
+          <button className="btn btn-large" disabled={isUploading}>Post</button>
        </form>
    );
 }
@@ -246,9 +254,9 @@ function FactList({facts}) {
    // const [facts, setFacts] = useState(initialFacts); carry it to the App component (parent)
 
    if (facts.length === 0) {
-        return (
-            <p className="message">No facts to show... Create the first one.</p>
-        );
+      return (
+          <p className="message">No facts to show... Create the first one.</p>
+      );
    }
 
    return (
