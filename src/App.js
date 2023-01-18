@@ -39,14 +39,18 @@ const initialFacts = [
 function App() {
    const [showForm, setShowForm] = useState(false);
    const [facts, setFacts] = useState([]);
+    const [loading, setLoading] = useState(false);
 
    useEffect(() => {
+      // before we fetch the data, we set the loading state to true
+        setLoading(true);
       async function fetchFacts() {
          const { data: facts, error } = await supabase
              .from('facts')
              .select('*')
             // console.log(facts)
          setFacts(facts)
+         setLoading(false);
       }
         fetchFacts()
    }, []);
@@ -59,7 +63,8 @@ function App() {
           {/*<NewFactForm/>*/}
           <main className={"main"}>
              <CategoryFilter/>
-             <FactList facts={facts}/>
+             {loading ? <Loading/> : <FactList facts={facts}/> }
+             {/*<FactList facts={facts}/>*/}
           </main>
 
        </>
