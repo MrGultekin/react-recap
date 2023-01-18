@@ -178,7 +178,10 @@ function NewFactForm({setFacts, setShowForm}) {
          setIsUploading(false);
          // 4- Add the new fact to the list of facts
          // With [0] fact is added both database and also local state
-         setFacts((facts) => [newFact[0], ...facts]);
+         if (!error) {
+            setFacts((facts) => [newFact[0], ...facts]);
+         }
+         // setFacts((facts) => [newFact[0], ...facts]);
          // 5- Reset the form
          setText("");
          setSource("");
