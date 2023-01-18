@@ -44,7 +44,7 @@ function App() {
       async function fetchFacts() {
          const { data: facts, error } = await supabase
              .from('facts')
-             .select('id')
+             .select('*')
             console.log(facts)
       }
         fetchFacts()
