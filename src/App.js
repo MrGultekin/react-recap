@@ -1,40 +1,40 @@
 import './style.css'
 import {useEffect, useState} from "react";
 import supabase from "./supabase";
-
-const initialFacts = [
-   {
-      id: 1,
-      text: "React is being developed by Meta (formerly facebook)",
-      source: "https://opensource.fb.com/",
-      category: "technology",
-      votesInteresting: 24,
-      votesMindblowing: 9,
-      votesFalse: 4,
-      createdIn: 2021,
-   },
-   {
-      id: 2,
-      text: "Millennial dads spend 3 times as much time with their kids than their fathers spent with them. In 1982, 43% of fathers had never changed a diaper. Today, that number is down to 3%",
-      source:
-          "https://www.mother.ly/parenting/millennial-dads-spend-more-time-with-their-kids",
-      category: "society",
-      votesInteresting: 11,
-      votesMindblowing: 2,
-      votesFalse: 0,
-      createdIn: 2019,
-   },
-   {
-      id: 3,
-      text: "Lisbon is the capital of Portugal",
-      source: "https://en.wikipedia.org/wiki/Lisbon",
-      category: "society",
-      votesInteresting: 8,
-      votesMindblowing: 3,
-      votesFalse: 1,
-      createdIn: 2015,
-   },
-];
+// No need mock data anymore
+// const initialFacts = [
+//    {
+//       id: 1,
+//       text: "React is being developed by Meta (formerly facebook)",
+//       source: "https://opensource.fb.com/",
+//       category: "technology",
+//       votesInteresting: 24,
+//       votesMindblowing: 9,
+//       votesFalse: 4,
+//       createdIn: 2021,
+//    },
+//    {
+//       id: 2,
+//       text: "Millennial dads spend 3 times as much time with their kids than their fathers spent with them. In 1982, 43% of fathers had never changed a diaper. Today, that number is down to 3%",
+//       source:
+//           "https://www.mother.ly/parenting/millennial-dads-spend-more-time-with-their-kids",
+//       category: "society",
+//       votesInteresting: 11,
+//       votesMindblowing: 2,
+//       votesFalse: 0,
+//       createdIn: 2019,
+//    },
+//    {
+//       id: 3,
+//       text: "Lisbon is the capital of Portugal",
+//       source: "https://en.wikipedia.org/wiki/Lisbon",
+//       category: "society",
+//       votesInteresting: 8,
+//       votesMindblowing: 3,
+//       votesFalse: 1,
+//       createdIn: 2015,
+//    },
+// ];
 
 function App() {
    const [showForm, setShowForm] = useState(false);
@@ -83,7 +83,7 @@ function App() {
           {/*<NewFactForm/>*/}
           <main className={"main"}>
              <CategoryFilter setCurrentCategory={setCurrentCategory}/>
-             {loading ? <Loading/> : <FactList facts={facts}/>}
+             {loading ? <Loading/> : <FactList facts={facts} setFacts={setFacts}/>}
              {/*<FactList facts={facts}/>*/}
           </main>
 
@@ -105,9 +105,9 @@ function Header({showForm, setShowForm}) {
        <header className="header">
           <div className="logo">
              <img
-                 src="logo.png"
-                 height="68"
-                 width="68"
+                 src="/logo.png"
+                 height="150"
+                 width="150"
                  alt="Today I Learned Logo"
              />
              <h1>{appTitle}</h1>
@@ -251,7 +251,7 @@ function CategoryFilter({setCurrentCategory}) {
    );
 }
 
-function FactList({facts}) {
+function FactList({facts, setFacts}) {
    // Temporary data
    // const facts = initialFacts;
    // const [facts, setFacts] = useState(initialFacts); carry it to the App component (parent)
@@ -265,15 +265,28 @@ function FactList({facts}) {
    return (
        <section>
           <ul className={"facts-list"}>
-             {facts.map((fact) => <Fact fact={fact} key={fact.id}/>)}
+             {facts.map((fact) => <Fact fact={fact} key={fact.id} setFacts={setFacts} />)}
           </ul>
           <p>There are {facts.length} facts. Add your own!</p>
        </section>
    );
 }
 
-function Fact({fact}) {
+function Fact({fact, setFacts}) {
    // console.log(props)
+   async function handleVote() {
+      const {data:updatedFact, error} =await supabase.from("facts")
+          .update({votesInteresting: fact.votesInteresting + 1})
+          .eq("id", fact.id)
+          .select();
+        console.log(updatedFact);
+        if(!error) {
+           setFacts((facts) =>
+                facts.map((f) => (f.id === fact.id ? updatedFact[0] : f))
+             );
+        }
+   }
+
    // const {facthObj} = props;
    return (
        <li className="fact">
@@ -291,7 +304,7 @@ function Fact({fact}) {
           >{fact.category}</span
           >
           <div className="vote-buttons">
-             <button>👍 {fact.votesInteresting}</button>
+             <button onClick={handleVote}>👍 {fact.votesInteresting}</button>
              <button>🤯 {fact.votesMindblowing}</button>
              <button>⛔️ {fact.votesFalse}</button>
           </div>
